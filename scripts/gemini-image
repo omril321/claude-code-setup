@@ -1,0 +1,219 @@
+#!/bin/bash
+
+set -e
+
+# Default values
+OUTPUT=""
+ASPECT_RATIO=""
+INPUT_IMAGE=""
+PROMPT=""
+
+show_help() {
+    cat << EOF
+Usage: gemini-image [OPTIONS] "PROMPT"
+
+Generate images using Google's Gemini API.
+
+Arguments:
+  PROMPT                  The text prompt describing the image to generate
+
+Options:
+  -i, --input PATH        Input image to modify (for image editing)
+  -o, --output PATH       Output file path (default: ./generated-{timestamp}.png)
+  -a, --aspect RATIO      Aspect ratio: 1:1, 16:9, 4:3, 3:2, 2:3, 9:16
+  -h, --help              Show this help message
+
+Examples:
+  gemini-image "a cat astronaut"
+  gemini-image "a sunset" -o sunset.png
+  gemini-image "wide landscape" --aspect 16:9
+  gemini-image "add sunglasses" -i selfie.png -o modified.png
+  gemini-image "change the sky to purple" --input photo.jpg
+
+Environment:
+  GEMINI_API_KEY          Required. Your Google Gemini API key.
+EOF
+    exit 0
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            ;;
+        -o|--output)
+            OUTPUT="$2"
+            shift 2
+            ;;
+        -a|--aspect)
+            ASPECT_RATIO="$2"
+            shift 2
+            ;;
+        -i|--input)
+            INPUT_IMAGE="$2"
+            shift 2
+            ;;
+        -*)
+            echo "Error: Unknown option $1" >&2
+            echo "Use --help for usage information" >&2
+            exit 1
+            ;;
+        *)
+            if [[ -z "$PROMPT" ]]; then
+                PROMPT="$1"
+            else
+                PROMPT="$PROMPT $1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Validate prompt
+if [[ -z "$PROMPT" ]]; then
+    echo "Error: No prompt provided" >&2
+    echo "Use --help for usage information" >&2
+    exit 1
+fi
+
+# Validate API key
+if [[ -z "$GEMINI_API_KEY" ]]; then
+    echo "Error: GEMINI_API_KEY environment variable is not set" >&2
+    exit 1
+fi
+
+# Validate input image if provided
+if [[ -n "$INPUT_IMAGE" ]]; then
+    if [[ ! -f "$INPUT_IMAGE" ]]; then
+        echo "Error: Input image not found: $INPUT_IMAGE" >&2
+        exit 1
+    fi
+fi
+
+# Validate aspect ratio if provided
+if [[ -n "$ASPECT_RATIO" ]]; then
+    case "$ASPECT_RATIO" in
+        1:1|16:9|4:3|3:2|2:3|9:16)
+            ;;
+        *)
+            echo "Error: Invalid aspect ratio '$ASPECT_RATIO'" >&2
+            echo "Valid options: 1:1, 16:9, 4:3, 3:2, 2:3, 9:16" >&2
+            exit 1
+            ;;
+    esac
+fi
+
+# Set default output path if not provided
+if [[ -z "$OUTPUT" ]]; then
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+    OUTPUT="./generated-${TIMESTAMP}.png"
+fi
+
+# Detect mime type from file extension
+get_mime_type() {
+    local file="$1"
+    local ext="${file##*.}"
+    ext=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
+    case "$ext" in
+        jpg|jpeg) echo "image/jpeg" ;;
+        png) echo "image/png" ;;
+        gif) echo "image/gif" ;;
+        webp) echo "image/webp" ;;
+        *) echo "image/jpeg" ;;
+    esac
+}
+
+# Build the request payload
+build_payload() {
+    local prompt="$1"
+    local aspect="$2"
+    local input_image="$3"
+
+    # Build generation config
+    local gen_config
+    if [[ -n "$aspect" ]]; then
+        gen_config=$(jq -n --arg aspect "$aspect" '{
+            responseModalities: ["IMAGE", "TEXT"],
+            imageConfig: {aspectRatio: $aspect}
+        }')
+    else
+        gen_config='{"responseModalities": ["IMAGE", "TEXT"]}'
+    fi
+
+    # Build payload with or without input image
+    if [[ -n "$input_image" ]]; then
+        local mime_type=$(get_mime_type "$input_image")
+        # Use stdin to avoid arg length limits, strip newlines from base64
+        base64 -i "$input_image" | tr -d '\n' | jq -Rs \
+            --arg prompt "$prompt" \
+            --arg mime "$mime_type" \
+            --argjson config "$gen_config" \
+            '{
+                contents: [{
+                    parts: [
+                        {text: $prompt},
+                        {inlineData: {mimeType: $mime, data: .}}
+                    ]
+                }],
+                generationConfig: $config
+            }'
+    else
+        jq -n \
+            --arg prompt "$prompt" \
+            --argjson config "$gen_config" \
+            '{
+                contents: [{parts: [{text: $prompt}]}],
+                generationConfig: $config
+            }'
+    fi
+}
+
+API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${GEMINI_API_KEY}"
+
+if [[ -n "$INPUT_IMAGE" ]]; then
+    echo "Modifying image: \"$INPUT_IMAGE\" with prompt: \"$PROMPT\"..."
+else
+    echo "Generating image for: \"$PROMPT\"..."
+fi
+
+# Build payload and make API request
+# Use temp file for large payloads (when input image is provided)
+if [[ -n "$INPUT_IMAGE" ]]; then
+    TEMP_PAYLOAD=$(mktemp)
+    trap "rm -f '$TEMP_PAYLOAD'" EXIT
+    build_payload "$PROMPT" "$ASPECT_RATIO" "$INPUT_IMAGE" > "$TEMP_PAYLOAD"
+    RESPONSE=$(curl -s -X POST "$API_URL" \
+        -H "Content-Type: application/json" \
+        -d @"$TEMP_PAYLOAD")
+else
+    PAYLOAD=$(build_payload "$PROMPT" "$ASPECT_RATIO" "")
+    RESPONSE=$(curl -s -X POST "$API_URL" \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD")
+fi
+
+# Check for API errors
+if echo "$RESPONSE" | jq -e '.error' > /dev/null 2>&1; then
+    ERROR_MSG=$(echo "$RESPONSE" | jq -r '.error.message // "Unknown error"')
+    echo "Error: API request failed - $ERROR_MSG" >&2
+    exit 1
+fi
+
+# Extract base64 image data
+IMAGE_DATA=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[] | select(.inlineData) | .inlineData.data // empty' 2>/dev/null)
+
+if [[ -z "$IMAGE_DATA" ]]; then
+    echo "Error: No image data in response" >&2
+    # Show any text response for debugging
+    TEXT_RESPONSE=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[] | select(.text) | .text // empty' 2>/dev/null)
+    if [[ -n "$TEXT_RESPONSE" ]]; then
+        echo "API response: $TEXT_RESPONSE" >&2
+    fi
+    exit 1
+fi
+
+# Decode and save the image
+echo "$IMAGE_DATA" | base64 -d > "$OUTPUT"
+
+echo "Image saved to: $OUTPUT"
