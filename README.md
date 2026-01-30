@@ -78,11 +78,42 @@ Set your Gemini API key as an environment variable:
 export GEMINI_API_KEY="your-api-key-here"
 ```
 
+## Hook Registration
+
+Hooks need to be registered in your `~/.claude/settings.json` to be triggered. Add them under the `hooks` key:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "~/.claude/hooks/show-session-tips.sh"
+      },
+      {
+        "type": "command",
+        "command": "~/.claude/hooks/check-context-freshness.sh"
+      }
+    ]
+  }
+}
+```
+
+## Skills Not Included
+
+Some skills referenced in the documentation are not included in this public subset:
+
+- **decision-journal** - Capture architectural decisions with context and rationale
+- **code-quality-gate** - Architecture, correctness, and readability checklist
+- **testing** - Comprehensive testing patterns and framework-specific guidance
+
+If you'd like any of these added, open an issue and I'll consider including them.
+
 ## About This Repository
 
 This is a **public subset** of my real Claude Code setup. I maintain a more extensive private configuration that includes work-specific tools and personal preferences.
 
-I'll keep this repository updated as I can, or by request.
+I'll keep this repository updated as I can, or by request. Feel free to open an issue if you'd like to see additional skills or commands added.
 
 ## Contact
 
