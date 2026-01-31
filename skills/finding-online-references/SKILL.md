@@ -1,6 +1,7 @@
 ---
 name: finding-online-references
 description: Searches GitHub and web for relevant code examples and documentation using parallel subagents. Use when user says "look online", "find references", "search online", "find examples", or needs external resources.
+allowed-tools: Bash(gh search repos:*), Bash(gh search issues:*), Bash(gh repo view:*), Grep, Read
 ---
 
 # Finding Online References

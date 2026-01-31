@@ -1,6 +1,7 @@
 ---
 name: generate-image
 description: Generates images using gemini-image script. Use when user asks to generate, create, or make an image.
+allowed-tools: Bash(gemini-image:*), Bash(~/scripts/gemini-image:*)
 ---
 
 # Generate Image

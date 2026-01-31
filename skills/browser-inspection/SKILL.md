@@ -1,6 +1,7 @@
 ---
 name: browser-inspection
 description: Use when needing to inspect, debug, or interact with a browser - helps choose between Browser MCP (existing sessions) and DevTools MCP (debugging tools) based on the task requirements
+allowed-tools: Read, mcp__chrome-devtools__take_snapshot, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__list_pages, mcp__chrome-devtools__select_page, mcp__chrome-devtools__list_console_messages, mcp__chrome-devtools__get_console_message, mcp__chrome-devtools__list_network_requests, mcp__chrome-devtools__get_network_request, mcp__chrome-devtools__hover, mcp__chrome-devtools__wait_for
 ---
 
 # Browser Inspection

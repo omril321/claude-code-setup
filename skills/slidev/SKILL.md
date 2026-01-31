@@ -2,6 +2,7 @@
 name: slidev
 description: Creates story-driven technical presentations using Slidev. Focuses on narrative flow, minimal text, and progressive disclosure. Use when working with Slidev, sli.dev, slides.md, or creating technical slide decks.
 invocation: user
+allowed-tools: Bash(slidev:*), Read
 ---
 
 # Slidev Presentations

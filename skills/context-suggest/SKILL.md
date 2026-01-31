@@ -1,6 +1,7 @@
 ---
 name: context-suggest
 description: Discovers relevant skills, agents, commands, and MCP tools by scanning project context and tool capabilities. Use when entering planning mode, starting work on a new codebase, or when user asks about available tools. Auto-triggers with thorough-planning skill.
+allowed-tools: Read, Glob, ListMcpResourcesTool
 ---
 
 # Context Suggest

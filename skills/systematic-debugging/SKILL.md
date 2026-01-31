@@ -1,6 +1,7 @@
 ---
 name: systematic-debugging
 description: Use when debugging unclear issues, mysterious failures, intermittent bugs, or problems with unknown root causes - provides framework combining assumption verification with hypothesis-driven investigation to find root causes systematically
+allowed-tools: mcp__sequential-thinking__sequentialthinking
 ---
 
 # Systematic Debugging

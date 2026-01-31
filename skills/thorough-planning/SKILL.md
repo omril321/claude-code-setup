@@ -1,6 +1,7 @@
 ---
 name: thorough-planning
 description: Use when planning complex tasks, encountering "plan" keywords, or detecting multi-step implementation - enforces context gathering before coding through mandatory success criteria and feedback loops
+allowed-tools: Bash(ls:*), Bash(grep:*), Read, mcp__sequential-thinking__sequentialthinking
 hooks:
   PreToolUse:
     - matcher: "ExitPlanMode"
