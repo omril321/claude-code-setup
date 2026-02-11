@@ -49,24 +49,65 @@ Hooks are shell scripts triggered at specific Claude Code lifecycle events.
 
 ## Installation
 
-Copy the directories you want into your `~/.claude/` directory:
+### Interactive Setup (Recommended)
+
+Clone the repository and run the interactive setup script:
 
 ```bash
 # Clone this repo
 git clone https://github.com/omril321/claude-code-setup.git
+cd claude-code-setup
 
+# Run interactive setup
+./setup.sh
+```
+
+The setup script provides:
+- **Interactive checkbox menus** to select which skills, commands, and hooks to install
+- **Automatic settings.json configuration** for SessionStart hooks
+- **Optional gemini-image script installation** with PATH and API key detection
+- **Keyboard shortcuts**: `↑↓` to navigate, `space` to toggle, `a` to select all, `n` to deselect all, `enter` to confirm
+
+### Non-Interactive Installation
+
+Install everything without prompts:
+
+```bash
+./setup.sh --all
+```
+
+Or skip the gemini-image script:
+
+```bash
+./setup.sh --all --no-gemini
+```
+
+### Uninstall
+
+Remove previously installed items:
+
+```bash
+./setup.sh --uninstall
+```
+
+### Manual Installation
+
+If you prefer manual installation:
+
+```bash
 # Copy skills
-cp -R claude-code-setup/skills/* ~/.claude/skills/
+cp -R skills/* ~/.claude/skills/
 
 # Copy commands
-cp -R claude-code-setup/commands/* ~/.claude/commands/
+cp -R commands/* ~/.claude/commands/
 
 # Copy hooks
-cp -R claude-code-setup/hooks/* ~/.claude/hooks/
+cp -R hooks/* ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh
 
 # Copy scripts (optional - for generate-image skill)
 mkdir -p ~/scripts
-cp claude-code-setup/scripts/gemini-image ~/scripts/
+cp scripts/gemini-image ~/scripts/
 chmod +x ~/scripts/gemini-image
 ```
 
