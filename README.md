@@ -10,41 +10,41 @@ This repository contains skills, commands, and hooks that I've developed for my 
 
 Skills are reusable technique references and process documentation for Claude Code.
 
-| Skill | Description |
-|-------|-------------|
-| **thorough-planning** | Planning methodology with mandatory success criteria and feedback loops |
-| **systematic-debugging** | Hypothesis-driven debugging framework |
-| **writing-skills** | Test-driven development approach for creating skills |
-| **context-suggest** | Discovers relevant skills, agents, commands, and MCP tools |
-| **finding-online-references** | Parallel search agents for GitHub and web research |
-| **slidev** | Story-driven technical presentations using Slidev |
-| **browser-inspection** | Decision framework for Browser MCP vs DevTools MCP |
-| **generate-image** | Image generation using Google's Gemini API |
+| Skill                         | Description                                                             |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **thorough-planning**         | Planning methodology with mandatory success criteria and feedback loops |
+| **systematic-debugging**      | Hypothesis-driven debugging framework                                   |
+| **writing-skills**            | Test-driven development approach for creating skills                    |
+| **context-suggest**           | Discovers relevant skills, agents, commands, and MCP tools              |
+| **finding-online-references** | Parallel search agents for GitHub and web research                      |
+| **slidev**                    | Story-driven technical presentations using Slidev                       |
+| **browser-inspection**        | Decision framework for Browser MCP vs DevTools MCP                      |
+| **generate-image**            | Image generation using Google's Gemini API                              |
 
 ### Commands
 
 Commands are execution templates invoked with `/command-name`.
 
-| Command | Description |
-|---------|-------------|
-| **/create-skill** | Guide for creating new skills using TDD methodology |
-| **/create-hook** | Analyze project and suggest practical hooks |
-| **/handoff-prompt** | Create comprehensive session handoff documents |
-| **/refresh-context** | Validate and update project Claude artifacts |
+| Command              | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| **/create-skill**    | Guide for creating new skills using TDD methodology |
+| **/create-hook**     | Analyze project and suggest practical hooks         |
+| **/handoff-prompt**  | Create comprehensive session handoff documents      |
+| **/refresh-context** | Validate and update project Claude artifacts        |
 
 ### Hooks
 
 Hooks are shell scripts triggered at specific Claude Code lifecycle events.
 
-| Hook | Event | Description |
-|------|-------|-------------|
-| **show-session-tips.sh** | SessionStart | Display helpful tips when sessions start |
-| **check-context-freshness.sh** | SessionStart | Warn if project context is stale |
+| Hook                           | Event        | Description                              |
+| ------------------------------ | ------------ | ---------------------------------------- |
+| **show-session-tips.sh**       | SessionStart | Display helpful tips when sessions start |
+| **check-context-freshness.sh** | SessionStart | Warn if project context is stale         |
 
 ### Scripts
 
-| Script | Description |
-|--------|-------------|
+| Script           | Description                                          |
+| ---------------- | ---------------------------------------------------- |
 | **gemini-image** | CLI tool for generating images via Google Gemini API |
 
 ## Installation
@@ -87,12 +87,16 @@ Hooks need to be registered in your `~/.claude/settings.json` to be triggered. A
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "~/.claude/hooks/show-session-tips.sh"
-      },
-      {
-        "type": "command",
-        "command": "~/.claude/hooks/check-context-freshness.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/show-session-tips.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/check-context-freshness.sh --check"
+          }
+        ]
       }
     ]
   }
