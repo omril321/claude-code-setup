@@ -78,13 +78,12 @@ Set your Gemini API key as an environment variable:
 export GEMINI_API_KEY="your-api-key-here"
 ```
 
-## Settings
+## Hook Registration
 
-Below is the recommended `~/.claude/settings.json` configuration. It includes the model, hook registration, and status line:
+Hooks need to be registered in your `~/.claude/settings.json` to be triggered. Add them under the `hooks` key:
 
 ```json
 {
-  "model": "claude-opus-4-6",
   "hooks": {
     "SessionStart": [
       {
@@ -101,21 +100,11 @@ Below is the recommended `~/.claude/settings.json` configuration. It includes th
         ]
       }
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "npx -y @owloops/claude-powerline --style=powerline"
   }
 }
 ```
 
-### Hook Registration
-
-Hooks need to be registered under the `hooks` key with a `matcher` (empty string matches all projects) and a nested `hooks` array.
-
-### Status Line
-
-The `statusLine` setting configures a persistent status bar using [`@owloops/claude-powerline`](https://www.npmjs.com/package/@owloops/claude-powerline). It runs via `npx` so no global install is required.
+Hooks are registered under the `hooks` key with a `matcher` (empty string matches all projects) and a nested `hooks` array.
 
 ## Skills Not Included
 
