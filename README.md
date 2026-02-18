@@ -16,6 +16,7 @@ Skills are reusable technique references and process documentation for Claude Co
 | **systematic-debugging**      | Hypothesis-driven debugging framework                                   |
 | **writing-skills**            | Test-driven development approach for creating skills                    |
 | **context-suggest**           | Discovers relevant skills, agents, commands, and MCP tools              |
+| **create-agent**              | Guides creation of Claude Code subagents with proper structure          |
 | **finding-online-references** | Parallel search agents for GitHub and web research                      |
 | **slidev**                    | Story-driven technical presentations using Slidev                       |
 | **browser-inspection**        | Decision framework for Browser MCP vs DevTools MCP                      |
