@@ -135,11 +135,11 @@ if [ -n "${branch:-}" ] && command -v gh >/dev/null 2>&1; then
 
                 if [ "${total_rev:-0}" -gt 0 ] 2>/dev/null; then
                     if [ "${changes_req:-0}" -gt 0 ] 2>/dev/null; then
-                        pr_info="${pr_info} ${RED}👀${approvals}✓${changes_req}✗/${total_rev}${RESET}"
+                        pr_info="${pr_info} ${RED}👤${approvals}✓${changes_req}✗/${total_rev}${RESET}"
                     elif [ "$approvals" -eq "$total_rev" ] 2>/dev/null; then
-                        pr_info="${pr_info} ${GREEN}👀${approvals}/${total_rev}${RESET}"
+                        pr_info="${pr_info} ${GREEN}👤${approvals}/${total_rev}${RESET}"
                     else
-                        pr_info="${pr_info} ${YELLOW}👀${approvals}/${total_rev}${RESET}"
+                        pr_info="${pr_info} ${YELLOW}👤${approvals}/${total_rev}${RESET}"
                     fi
                 fi
             fi

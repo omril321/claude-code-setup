@@ -58,7 +58,7 @@ else
 fi
 
 # Fetch PR data
-pr_json=$(run gh pr view --json number,url,state,mergeStateStatus,isDraft,latestReviews,reviewRequests 2>/dev/null) || {
+pr_json=$(run gh pr view --json number,url,state,mergeStateStatus,isDraft,latestReviews,reviewRequests,statusCheckRollup 2>/dev/null) || {
     write_no_pr
     exit 0
 }
@@ -80,7 +80,21 @@ elif [ "$is_draft" = "true" ]; then
 else
     case "$merge_state" in
         CLEAN)   merge_emoji="✅" ;;
-        BLOCKED) merge_emoji="❌" ;;
+        BLOCKED)
+            # Check if all CI checks passed — if so, blocked by approval not by checks
+            all_checks_pass=$(echo "$pr_json" | jq '
+                [.statusCheckRollup // [] | .[] |
+                    if .__typename == "StatusContext" then .state == "SUCCESS"
+                    else .conclusion == "SUCCESS" or .conclusion == "NEUTRAL" or .conclusion == "SKIPPED"
+                    end
+                ] | all
+            ')
+            if [ "$all_checks_pass" = "true" ]; then
+                merge_emoji="👀"
+            else
+                merge_emoji="❌"
+            fi
+            ;;
         DIRTY)   merge_emoji="❌" ;;
         BEHIND)  merge_emoji="🔄" ;;
         *)       merge_emoji="🔄" ;;
